@@ -4,49 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 </head>
 <script>
-      function toggleTaskDecoration(event) {
-        const target = event.target;
-        if (target.classList.contains("task-checkbox")) {
-            const taskTextElement = target.nextElementSibling;
-            taskTextElement.style.textDecoration = target.checked ? "line-through" : "none";
+         function checkEnter(event) {
+        if (event.key === "Enter") {
+            addTask();
+            selectMostRecentTask();
         }
-
     }
 
     function addTask() {
-        const taskInput = document.getElementById("taskInput");
-        const taskList = document.getElementById("taskList");
-        const taskText = taskInput.value.trim();
+    // Get the input value
+    var taskInput = document.getElementById("taskInput");
+    var inputValue = taskInput.value;
 
-        if (taskText !== "") {
-            const taskItem = document.createElement("li");
-            taskItem.innerHTML = `
+    // Get the output element
+    var taskList = document.getElementById("taskList");
+
+    // Check if the input value is not empty
+    if (inputValue.trim() !== "") {
+        // Create a new list item to display the input value with a checkbox
+        var taskItem = document.createElement("li");
+        taskItem.innerHTML = `
                 <input type="checkbox" class="task-checkbox">
-                <span>${taskText}</span>
+                <span>${inputValue}</span>
                 <i class='bx bx-message-alt-x task-delete-icon'></i>
             `;
-            taskList.appendChild(taskItem);
-            taskInput.value = "";
-
-            taskList.scrollTop = taskList.scrollHeight;
-
-            // Attach a click event listener to the delete icon
+        
             const deleteIcon = taskItem.querySelector(".task-delete-icon");
             deleteIcon.addEventListener("click", function () {
                 taskList.removeChild(taskItem);
             });
-        }
+
+        // Append the input value to the output field inside the same box
+        taskList.appendChild(taskItem);
+
+        // Clear the input field
+        taskInput.value = "";
+
+        // Add a click event listener to toggle the line-through text decoration
+        taskItem.querySelector("input[type=checkbox]").addEventListener("click", function () {
+            if (this.checked) {
+                taskItem.style.textDecoration = "line-through";
+            } else {
+                taskItem.style.textDecoration = "none";
+            }
+        });
+    }
     }
 
     function clearTasks() {
-        const taskList = document.getElementById("taskList");
-        taskList.innerHTML = "";
+        var taskList = document.getElementById("taskList");
+        taskList.innerHTML = ""; // Clears all the tasks in the list
     }
 
-    document.addEventListener("change", toggleTaskDecoration);
+    document.addEventListener("keydown", function(event) {
+        // Check if Ctrl key is pressed and the Delete key is pressed
+        if (event.shiftKey && event.key === "Delete") {
+            clearTasks();
+        }
+    });
+
+    function selectMostRecentTask() {
+        var taskList = document.getElementById("taskList");
+        var tasks = taskList.getElementsByTagName("li");
+
+        if (tasks.length > 0) {
+            var mostRecentTask = tasks[tasks.length - 1];
+            mostRecentTask.scrollIntoView();
+        }
+    }
 </script>
 <style>
     * {
@@ -111,7 +139,7 @@
         border: 1px solid #000;
         border-radius: 10px;
         padding: 10px;
-        font-size: 24px;
+        font-size: 20px;
         font-family: sans-serif;
         color: black;
         overflow-y: scroll;
@@ -123,6 +151,9 @@
         border-radius: 5px;
         padding: 0px 10px;
         width: 260px;
+    }
+    .check {
+        margin: 5px;
     }
     ul#taskList::-webkit-scrollbar {
         width: 12px; 
@@ -142,7 +173,7 @@
         <div class="box">
             <label class="logo">To-Do List:</label>
             <div class="input-container">
-                <input type="text" class="input" id="taskInput" placeholder="Enter your task">
+                <input type="text" class="input" id="taskInput" placeholder="Enter your task" onkeypress="checkEnter(event)">
                 <i id="send" class='bx bx-send' onclick="addTask()"></i>
                 <i id="clear" class='bx bx-x-circle' onclick="clearTasks()"></i>
             </div>
